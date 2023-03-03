@@ -12,7 +12,20 @@ import openai
 import re
 
 my_id = ''
+apikey = {'apikey':''}
+try:
+    with open('apiconfig.json', 'r') as f:
+        jsonStr = f.read()
+        apikey = json.loads(jsonStr)
+except:
+    with open('apiconfig.json', 'w') as f:
+        json.dump(apikey, f)
 
+if apikey['apikey']:
+    openai.api_key = apikey['apikey']
+else:
+    print(f'请完成apiconfig.json文件中完成key的配置')
+    sys.exit()
 def inject():
     # WX版本3.9.0.28
     cwd = pathlib.Path(__file__).cwd()
@@ -37,6 +50,7 @@ def getSelfId():
     response = requests.post(url=url)
     global my_id
     my_id = response.json()['data']['wxid']
+    print(my_id)
 
 def startHook():
     url = 'http://127.0.0.1:19088/api/?type=9'
@@ -63,7 +77,8 @@ class ReceiveMsgSocketServer(socketserver.BaseRequestHandler):
                         break
 
                 msg = json.loads(ptr_data)
-                thread_msg = threading.Thread(target=ReceiveMsgSocketServer.msg_callback, args="test")
+                # ReceiveMsgSocketServer.msg_callback(msg)
+                thread_msg = threading.Thread(target=ReceiveMsgSocketServer.msg_callback, args=[msg])
                 thread_msg.setDaemon(True)
                 thread_msg.start()
 
@@ -76,20 +91,22 @@ class ReceiveMsgSocketServer(socketserver.BaseRequestHandler):
 
     @staticmethod
     def msg_callback(msg):
-        print(msg)
         msg_type = msg['type']
         content = msg['content']
         from_user = msg['fromUser']
-        print(re.search("chatroom", from_user), from_user, type(from_user))
-        print(msg_type == 1 and not re.search('chatroom', from_user))
-        if msg_type == 1 and not re.search('chatroom', from_user):
+        from_group = msg['fromGroup']
+        if msg_type != 49:
+            print(msg)
+        global my_id
+        print(msg_type == 1 and not re.search('chatroom', from_user) and not re.search('chatroom', from_group) and from_user != my_id)
+        if msg_type == 1 and not re.search('chatroom', from_user) and not re.search('chatroom', from_group) and from_user != my_id:
             response = openai.Completion.create(model="text-davinci-003", prompt=content, temperature=0, max_tokens=1500)
             url = 'http://127.0.0.1:19088/api/?type=2'
             print(response)
             print(response['choices'][0]['text'])
             data = {
                 "wxid": from_user,
-                "msg": response['choices'][0]['text']
+                "msg": response['choices'][0]['text'][2:]
             }
             requests.post(url, data=json.dumps(data))
 
