@@ -8,7 +8,7 @@ import os
 import json
 import threading
 import socketserver
-import openai
+from revChatGPT.V3 import Chatbot
 import re
 
 my_id = ''
@@ -22,7 +22,7 @@ except:
         json.dump(apikey, f)
 
 if apikey['apikey']:
-    openai.api_key = apikey['apikey']
+    chatbot = Chatbot(api_key=apikey['apikey'])
 else:
     print(f'请完成apiconfig.json文件中完成key的配置')
     sys.exit()
@@ -100,13 +100,13 @@ class ReceiveMsgSocketServer(socketserver.BaseRequestHandler):
         global my_id
         print(msg_type == 1 and not re.search('chatroom', from_user) and not re.search('chatroom', from_group) and from_user != my_id)
         if msg_type == 1 and not re.search('chatroom', from_user) and not re.search('chatroom', from_group) and from_user != my_id:
-            response = openai.Completion.create(model="text-davinci-003", prompt=content, temperature=0, max_tokens=1500)
+            response = chatbot.ask(content)
             url = 'http://127.0.0.1:19088/api/?type=2'
             print(response)
             print(response['choices'][0]['text'])
             data = {
                 "wxid": from_user,
-                "msg": response['choices'][0]['text'][2:]
+                "msg": response
             }
             requests.post(url, data=json.dumps(data))
 
