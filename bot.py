@@ -103,7 +103,6 @@ class ReceiveMsgSocketServer(socketserver.BaseRequestHandler):
             response = chatbot.ask(content)
             url = 'http://127.0.0.1:19088/api/?type=2'
             print(response)
-            print(response['choices'][0]['text'])
             data = {
                 "wxid": from_user,
                 "msg": response
