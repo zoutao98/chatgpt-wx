@@ -10,3 +10,7 @@ WX接入ChatGPT
 3. 运行bot.py
 
 不回复群聊
+
+感谢
+
+[ttttupup/wxhelper](https://github.com/ttttupup/wxhelper/tree/main)
