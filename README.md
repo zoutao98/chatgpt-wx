@@ -1,5 +1,5 @@
 # chatgpt-wx
-WX接入ChatGPT
+WX接入ChatGPT PCWX version:3.9.0.28
 
 本项目属于个人学习研究，请勿用于非法用途和商业用途！如因此产生任何法律纠纷，均与作者无关！
 
