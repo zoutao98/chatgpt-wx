@@ -105,7 +105,7 @@ class ReceiveMsgSocketServer(socketserver.BaseRequestHandler):
             print(response)
             data = {
                 "wxid": from_user,
-                "msg": response
+                "msg": f"{response}[bot reply]"
             }
             requests.post(url, data=json.dumps(data))
 
